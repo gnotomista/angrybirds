@@ -2,9 +2,7 @@ classdef App < handle
     
     properties
         helper
-        handle_play
-        handle_figure
-        slingshot
+        game
         simulation
         agents
         point_caught
@@ -13,16 +11,21 @@ classdef App < handle
         bird_caught
         bird_released
         bird_speed
+        fig
+        slingshot
     end
     
     methods
         function this = App()
+            this.helper = Helper('Taylor','app_data/pics/taylor.png');
+            this.simulation = Sim();
+            
             this.agents = Agent('bird', [0, 1], 0.5);
-            N_pigs = 1; % round(10*rand());
+            N_pigs = 1;
             for n_pigs = 1 : N_pigs
                 this.agents = [this.agents, Agent('pig', [2 + 3*rand(), 0], 0.5)];
             end
-            this.simulation = Sim();
+            
             this.point_caught = [NaN NaN];
             this.point_released = [NaN NaN];
             this.point_move = [NaN NaN];
@@ -31,37 +34,26 @@ classdef App < handle
             this.bird_speed = [NaN NaN];
         end
         function start(this)
-            this.helper = ui_helper('units', 'normalized', 'position', [0.05 0.3 0.55 0.55]);
+            this.helper.new_features()
+            this.helper.intro()
+            this.game = this.helper.choose_game();
+            if strcmp(this.game, 'ic')
+                this.play_pick_initial_conditions()
+            elseif strcmp(this.game, 'ew')
+                disp('not implemented yet')
+            end
         end
-        function play(this)
-            this.handle_play = play('units', 'normalized', 'position', [0.1 0.1 0.8 0.8]);
+        function play_pick_initial_conditions(this)
+            this.helper.message_wait_button(0, 'Play', 'This is the basic bird: drag and drop it to fling it at the pig!', 'Let''s do it', 0.1)
             
-            ax1 = findobj('Tag', 'axes1_play');
-            set(ax1, 'Visible','off')
-            this.handle_figure = findobj('Tag', 'figure1_play');
-            figure(this.handle_figure)
-            hold on
-            axis equal
-            axis([-1 5 -0.5 2.5])
-            line([-5 5], [-0.01 -0.01], 'LineWidth', 3, 'Color', 'k')
-            line([0 0], [0 0.8], 'LineWidth', 3, 'Color', 'k')
-            line([0 -0.1], [0.8 0.7], 'LineWidth', 3, 'Color', 'k')
-            line([0 0.1], [0.8 0.9], 'LineWidth', 3, 'Color', 'k')
-            line([-0.1 -0.1], [0.7 0.9], 'LineWidth', 3, 'Color', 'k')
-            line([0.1 0.1], [0.9 1.1], 'LineWidth', 3, 'Color', 'k')
-            l1 = [0 1.0; 0.1 1.1];
-            l2 = [0 1.0; -0.1 0.9];
-            this.slingshot{1} = plot(l1(:,1), l1(:,2), 'k');
-            this.slingshot{2} = plot(l2(:,1), l2(:,2), 'k');
-            set (this.handle_figure, 'ButtonDownFcn', @this.onMouseDown);
-            set (this.handle_figure, 'WindowButtonUpFcn', @this.onMouseUp);
-            set (this.handle_figure, 'WindowButtonMotionFcn', @this.onMouseMove);
-            
+            this.create_play_figure('Play')
+            this.plot_environment()
             this.drawAgents();
+            
             while true
                 if this.bird_caught
                     this.agents(1).move(this.point_move);
-                    this.agents(1).update(this.handle_figure);
+                    this.agents(1).update(this.fig);
                 end
                 if this.bird_released
                     for i = 1 : 2
@@ -88,11 +80,7 @@ classdef App < handle
                 pause(0.03)
             end
             
-            pause(2)
-            
-            apushbutton = findobj('Tag', 'apushbutton');
-            callbackCell = get(apushbutton,'Callback');
-            callbackCell(apushbutton,[]);
+            this.helper.message_wait_button(1, 'Optimal trajectory', 'Nice! But let''s have a look at the optimal solution obtained going back and forth in time in some strange spaces', 'Let''s see', 0.1)
             
             for agent = this.agents
                 agent.setState(true);
@@ -116,15 +104,12 @@ classdef App < handle
                 pause(0.03)
             end
             
-            pause(2)
-            
-            touchbutton = findobj('Tag', 'touchbutton');
-            callbackCell = get(touchbutton,'Callback');
-            callbackCell(touchbutton,[]);
+            this.helper.info(0.5, 'Touchdown', 'TOUCHDOWN!', 0.2)
+            this.delete_play_figure(0)
         end
         function drawAgents(this)
             for agent = this.agents
-                agent.draw(this.handle_figure);
+                agent.draw(this.fig);
             end
         end
         function deleteAgents(this)
@@ -134,11 +119,59 @@ classdef App < handle
         end
         function updateAgents(this)
             for agent = this.agents
-                agent.update(this.handle_figure);
+                agent.update(this.fig);
             end
         end
+        function checkCollision(this)
+            b1 = this.agents(1).traslated_collision_shape;
+            for agent = this.agents(2:end)
+                b2 = agent.traslated_collision_shape;
+                if any(inpolygon(b1(:,1), b1(:,2), b2(:,1), b2(:,2))) || any(inpolygon(b2(:,1), b2(:,2), b1(:,1), b1(:,2)))
+                    agent.setState(false);
+                end
+            end
+        end
+        function create_play_figure(this, name)
+            this.fig = figure;
+            this.fig.Visible = 'off';
+            this.fig.Units = 'normalized';
+            this.fig.Position = [0.1 0.1 0.8 0.8];
+            this.fig.MenuBar = 'none';
+            this.fig.NumberTitle = 'off';
+            this.fig.Name = name;
+            this.fig.ButtonDownFcn = @this.onMouseDown;
+            this.fig.WindowButtonUpFcn = @this.onMouseUp;
+            this.fig.WindowButtonMotionFcn = @this.onMouseMove;
+            
+            ha = axes;
+            ha.Units = 'normalized';
+            ha.Position = [0.01 0.01 0.98 0.98];
+            axis off
+            
+            this.fig.Visible = 'on';
+        end
+        function delete_play_figure(this, delay)
+            pause(delay)
+            close(this.fig)
+        end
+        function plot_environment(this)
+            figure(this.fig)
+            hold on
+            axis equal
+            axis([-1 5 -0.5 2.5])
+            line([-5 5], [-0.01 -0.01], 'LineWidth', 3, 'Color', 'k')
+            line([0 0], [0 0.8], 'LineWidth', 3, 'Color', 'k')
+            line([0 -0.1], [0.8 0.7], 'LineWidth', 3, 'Color', 'k')
+            line([0 0.1], [0.8 0.9], 'LineWidth', 3, 'Color', 'k')
+            line([-0.1 -0.1], [0.7 0.9], 'LineWidth', 3, 'Color', 'k')
+            line([0.1 0.1], [0.9 1.1], 'LineWidth', 3, 'Color', 'k')
+            l1 = [0 1.0; 0.1 1.1];
+            l2 = [0 1.0; -0.1 0.9];
+            this.slingshot{1} = plot(l1(:,1), l1(:,2), 'k');
+            this.slingshot{2} = plot(l2(:,1), l2(:,2), 'k');
+        end
         function onMouseDown(this, object, eventdata)
-            figure(this.handle_figure)
+            figure(this.fig)
             this.point_caught = [1 0]*get(gca, 'CurrentPoint')*[1 0;0 1;0 0];
             if this.agents(1).clicked_inside(this.point_caught)
                 this.bird_caught = true;
@@ -153,22 +186,13 @@ classdef App < handle
             end
         end
         function onMouseMove(this, object, eventdata)
-            figure(this.handle_figure)
+            figure(this.fig)
             this.point_move = [1 0]*get(gca, 'CurrentPoint')*[1 0;0 1;0 0];
             if this.bird_caught && ~this.bird_released
                 l1 = [this.point_move; 0.1 1.1];
                 l2 = [this.point_move; -0.1 0.9];
                 set(this.slingshot{1}, 'XData', l1(:,1), 'YData', l1(:,2));
                 set(this.slingshot{2}, 'XData', l2(:,1), 'YData', l2(:,2));
-            end
-        end
-        function checkCollision(this)
-            b1 = this.agents(1).traslated_collision_shape;
-            for agent = this.agents(2:end)
-                b2 = agent.traslated_collision_shape;
-                if any(inpolygon(b1(:,1), b1(:,2), b2(:,1), b2(:,2))) || any(inpolygon(b2(:,1), b2(:,2), b1(:,1), b1(:,2)))
-                    agent.setState(false);
-                end
             end
         end
     end

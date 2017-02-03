@@ -88,9 +88,9 @@ classdef Agent < handle
                 delete(this.handle{i})
             end
         end
-        function dress_agent_as_bird(this)
-            this.shape = 
-        end
+%         function dress_agent_as_bird(this)
+%             this.shape = 
+%         end
     end
     
 end
