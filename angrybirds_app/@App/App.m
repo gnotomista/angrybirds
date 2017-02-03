@@ -34,7 +34,7 @@ classdef App < handle
             this.bird_speed = [NaN NaN];
         end
         function start(this)
-            this.helper.new_features()
+            % this.helper.new_features()
             this.helper.intro()
             this.game = this.helper.choose_game();
             if strcmp(this.game, 'ic')

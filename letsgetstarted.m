@@ -1,9 +1,8 @@
 clc
 clear
-close all hidden
+close all
 
 addpath(genpath(pwd))
 
-global app
 app = App();
 app.start();
