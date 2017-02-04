@@ -20,14 +20,14 @@ classdef Helper < handle
             ha1 = axes;
             ha1.Units = 'normalized';
             ha1.Position = [0.05 0.55 0.4 0.4];
-            image(imread('app_data/pics/egerstedt_wardi.png'))
+            image(imread('app_data/png/egerstedt_wardi.png'))
             axis off
             axis image
             
             ha2 = axes;
             ha2.Units = 'normalized';
             ha2.Position = [0.05 0.05 0.4 0.4];
-            image(imread('app_data/pics/linux_mac.png'))
+            image(imread('app_data/png/linux_mac.png'))
             axis off
             axis image
             

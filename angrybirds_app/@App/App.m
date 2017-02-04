@@ -17,7 +17,7 @@ classdef App < handle
     
     methods
         function this = App()
-            this.helper = Helper('Taylor','app_data/pics/taylor.png');
+            this.helper = Helper('Taylor','app_data/png/taylor.png');
             this.simulation = Sim();
             
             this.agents = Agent('bird', [0, 1], 0.5);
@@ -34,7 +34,7 @@ classdef App < handle
             this.bird_speed = [NaN NaN];
         end
         function start(this)
-            % this.helper.new_features()
+            this.helper.new_features()
             this.helper.intro()
             this.game = this.helper.choose_game();
             if strcmp(this.game, 'ic')
