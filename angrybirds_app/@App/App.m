@@ -20,7 +20,7 @@ classdef App < handle
             this.helper = Helper('Taylor','app_data/png/taylor.png');
             this.simulation = Sim();
             
-            this.agents = Agent('redBird', [0, 1], 0.5);
+            this.agents = Agent('red', [0, 1], 0.2);
             N_pigs = 1;
             for n_pigs = 1 : N_pigs
                 this.agents = [this.agents, Agent('pig', [2 + 3*rand(), 0], 0.5)];
