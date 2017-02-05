@@ -30,12 +30,6 @@ classdef Agent < handle
             
             this.dress_me_as(this.type)
             
-            this.traslated_shape = this.shape;
-            this.collision_shape = [max(this.shape{1}(:,1)) max(this.shape{1}(:,2));
-                min(this.shape{1}(:,1)) max(this.shape{1}(:,2));
-                min(this.shape{1}(:,1)) min(this.shape{1}(:,2));
-                max(this.shape{1}(:,1)) min(this.shape{1}(:,2))];
-            this.traslated_collision_shape = this.collision_shape;
             this.state = true;
             this.move(this.position)
         end
@@ -70,7 +64,7 @@ classdef Agent < handle
             end
         end
         function inside = clicked_inside(this, p)
-            inside = inpolygon(p(1), p(2), this.traslated_shape{1}(:,1), this.traslated_shape{1}(:,2));
+            inside = inpolygon(p(1), p(2), this.traslated_collision_shape(:,1), this.traslated_collision_shape(:,2));
         end
         function delete_handle(this)
             for i = 1 : length(this.shape)
@@ -82,6 +76,32 @@ classdef Agent < handle
             this.shape = cellfun(@(x) x * this.dimension, shape, 'un', 0);
             this.shape_colors = shape_colors;
             clear color shape
+            
+            xMax = -Inf;
+            xMin = +Inf;
+            yMax = -Inf;
+            yMin = +Inf;
+            for i = 1 : length(this.shape)
+                if max(this.shape{i}(:,1)) > xMax
+                    xMax = max(this.shape{i}(:,1));
+                end
+                if min(this.shape{i}(:,1)) < xMin
+                    xMin = min(this.shape{i}(:,1));
+                end
+                if max(this.shape{i}(:,2)) > yMax
+                    yMax = max(this.shape{i}(:,2));
+                end
+                if min(this.shape{i}(:,2)) < yMin
+                    yMin = min(this.shape{i}(:,2));
+                end
+            end
+            this.collision_shape = [xMax yMax;
+                xMin yMax;
+                xMin yMin;
+                xMax yMin];
+            
+            this.traslated_shape = this.shape;
+            this.traslated_collision_shape = this.collision_shape;
         end
     end
     

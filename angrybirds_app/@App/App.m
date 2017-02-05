@@ -69,8 +69,8 @@ classdef App < handle
             for t = 1 : size(traj,2)
                 this.agents(1).move(traj(:,t)');
                 this.checkCollision();
-                if traj(2,t) < 0
-                    traj(2,t) = 0;
+                if traj(2,t) + min(this.agents(1).collision_shape(:,2)) < 0
+                    traj(2,t) = traj(2,t) - min(this.agents(1).collision_shape(:,2));
                     this.agents(1).move(traj(:,t)');
                     this.updateAgents();
                     break
@@ -92,8 +92,8 @@ classdef App < handle
             for t = 1 : size(traj,2)
                 this.agents(1).move(traj(:,t)');
                 this.checkCollision()
-                if traj(2,t) < 0
-                    traj(2,t) = 0;
+                if traj(2,t) + min(this.agents(1).collision_shape(:,2)) < 0
+                    traj(2,t) = traj(2,t) - min(this.agents(1).collision_shape(:,2));
                     this.agents(1).move(traj(:,t)');
                     this.updateAgents();
                     drawnow
