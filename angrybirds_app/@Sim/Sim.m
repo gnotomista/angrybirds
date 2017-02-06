@@ -3,6 +3,8 @@ classdef Sim < handle
     properties
         traj
         A
+        A1
+        A2
         T
         dt
     end
@@ -12,6 +14,10 @@ classdef Sim < handle
             A4 = [zeros(2) eye(2);
                 zeros(2) zeros(2)];
             this.A = [A4 [0;0;0;-1];
+                zeros(1,4), 0];
+            this.A1 = [A4 [0;0;0;-1];
+                zeros(1,4), 0];
+            this.A2 = [A4 [0;0;10;-1];
                 zeros(1,4), 0];
             this.T = 2;
             this.dt = 0.025;
@@ -52,6 +58,14 @@ classdef Sim < handle
                 x0 = x0 - gamma * I010 * l(:, 1);
             end
             traj_optimal = x(1:2, :);
+        end
+        function p_ip1 = run_A(this, p_i, i)
+            if i == 1
+                xDot = this.A1 * p_i;
+            elseif i == 2
+                xDot = this.A2 * p_i;
+            end
+            p_ip1 = p_i + xDot * this.dt;
         end
     end
     

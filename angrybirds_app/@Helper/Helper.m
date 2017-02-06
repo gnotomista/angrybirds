@@ -39,7 +39,7 @@ classdef Helper < handle
             hText.Position = [0.55 0.6 0.35 0.3];
             
             hText = uicontrol('Style','text');
-            hText.String = 'Fixed stupid Macintosh''s issues';
+            hText.String = 'Fixed issues with Macintosh';
             hText.Units = 'normalized';
             hText.FontUnits = 'normalized';
             hText.FontSize = 0.25;

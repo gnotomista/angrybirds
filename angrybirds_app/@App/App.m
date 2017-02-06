@@ -11,6 +11,7 @@ classdef App < handle
         bird_caught
         bird_released
         bird_speed
+        clicked
         fig
         slingshot
     end
@@ -18,20 +19,14 @@ classdef App < handle
     methods
         function this = App()
             this.helper = Helper('Taylor','app_data/png/taylor.png');
-            this.simulation = Sim();
-            
-            this.agents = Agent('red', [0, 1], 0.2);
-            N_pigs = 1;
-            for n_pigs = 1 : N_pigs
-                this.agents = [this.agents, Agent('pig', [2 + 3*rand(), 0], 0.5)];
-            end
-            
+            this.simulation = Sim();            
             this.point_caught = [NaN NaN];
             this.point_released = [NaN NaN];
             this.point_move = [NaN NaN];
             this.bird_caught = false;
             this.bird_released = false;
             this.bird_speed = [NaN NaN];
+            this.clicked = false;
         end
         function start(this)
             this.helper.new_features()
@@ -40,13 +35,19 @@ classdef App < handle
             if strcmp(this.game, 'ic')
                 this.play_pick_initial_conditions()
             elseif strcmp(this.game, 'ew')
-                disp('not implemented yet')
+                this.play_pick_switching_time()
             end
         end
         function play_pick_initial_conditions(this)
+            this.agents = Agent('red', [0, 1], 0.2);
+            N_pigs = 1;
+            for n_pigs = 1 : N_pigs
+                this.agents = [this.agents, Agent('pig', [2 + 3*rand(), 0], 0.5)];
+            end
+            
             this.helper.message_wait_button(0, 'Play', 'This is the basic bird: drag and drop it to fling it at the pig!', 'Let''s do it', 0.1)
             
-            this.create_play_figure('Play')
+            this.create_play_ic_figure('Play')
             this.plot_environment()
             this.drawAgents();
             
@@ -107,6 +108,35 @@ classdef App < handle
             this.helper.info(0.5, 'Touchdown', 'TOUCHDOWN!', 0.2)
             this.delete_play_figure(0)
         end
+        function play_pick_switching_time(this)
+            this.agents = Agent('yellow', [0, 1], 0.2);
+            this.point_move = [0; 1];
+            this.bird_speed = [1; 1];
+            N_pigs = 1;
+            for n_pigs = 1 : N_pigs
+                this.agents = [this.agents, Agent('pig', [2 + 3*rand(), 0], 0.5)];
+            end
+            
+            this.helper.message_wait_button(0, 'Play', 'This is the yellow bird: click on the figure to switch to accelerated mode!', 'Let''s do it', 0.1)
+            
+            this.create_play_ew_figure('Play')
+            this.plot_environment()
+            this.drawAgents();
+            
+            while true
+                if ~this.clicked
+                    state_ip1 = this.simulation.run_A([this.point_move; this.bird_speed; 9.81], 1);
+                else
+                    state_ip1 = this.simulation.run_A([this.point_move; this.bird_speed; 9.81], 2);
+                end
+                this.point_move = state_ip1(1:2);
+                this.bird_speed = state_ip1(3:4);
+                this.agents(1).move(this.point_move');
+                this.agents(1).update(this.fig);
+                drawnow
+                pause(0.03)
+            end
+        end
         function drawAgents(this)
             for agent = this.agents
                 agent.draw(this.fig);
@@ -131,7 +161,7 @@ classdef App < handle
                 end
             end
         end
-        function create_play_figure(this, name)
+        function create_play_ic_figure(this, name)
             this.fig = figure;
             this.fig.Visible = 'off';
             this.fig.Units = 'normalized';
@@ -148,6 +178,25 @@ classdef App < handle
             ha.Position = [0.01 0.01 0.98 0.98];
             axis off
             
+            movegui(this.fig, 'center')
+            this.fig.Visible = 'on';
+        end
+        function create_play_ew_figure(this, name)
+            this.fig = figure;
+            this.fig.Visible = 'off';
+            this.fig.Units = 'normalized';
+            this.fig.Position = [0.1 0.1 0.8 0.8];
+            this.fig.MenuBar = 'none';
+            this.fig.NumberTitle = 'off';
+            this.fig.Name = name;
+            this.fig.ButtonDownFcn = @this.onMouseClicked;
+            
+            ha = axes;
+            ha.Units = 'normalized';
+            ha.Position = [0.01 0.01 0.98 0.98];
+            axis off
+            
+            movegui(this.fig, 'center')
             this.fig.Visible = 'on';
         end
         function delete_play_figure(this, delay)
@@ -194,6 +243,9 @@ classdef App < handle
                 set(this.slingshot{1}, 'XData', l1(:,1), 'YData', l1(:,2));
                 set(this.slingshot{2}, 'XData', l2(:,1), 'YData', l2(:,2));
             end
+        end
+        function onMouseClicked(this, object, eventdata)
+            this.clicked = true;
         end
     end
     
