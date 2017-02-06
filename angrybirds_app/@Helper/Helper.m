@@ -131,6 +131,7 @@ classdef Helper < handle
             this.fig.MenuBar = 'none';
             this.fig.NumberTitle = 'off';
             this.fig.Name = name;
+            movegui(this.fig, 'center')
         end
         function create_figure_with_axes(this, name)
             this.fig = figure;
@@ -140,6 +141,7 @@ classdef Helper < handle
             this.fig.MenuBar = 'none';
             this.fig.NumberTitle = 'off';
             this.fig.Name = name;
+            movegui(this.fig, 'center')
             
             ha = axes;
             ha.Units = 'normalized';

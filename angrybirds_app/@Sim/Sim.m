@@ -34,7 +34,7 @@ classdef Sim < handle
             
             traj_player = this.traj(1:2, :);
         end
-        function traj_optimal = run_optimal(this, pDes)
+        function traj_optimal = run_optimal_ic(this, pDes)
             gamma = 0.1;
             x0 = [0; 1; 1; 1; 9.81];
             xDes = [pDes(1); pDes(2); 0; 0; 9.81];
@@ -58,6 +58,9 @@ classdef Sim < handle
                 x0 = x0 - gamma * I010 * l(:, 1);
             end
             traj_optimal = x(1:2, :);
+        end
+        function traj_optimal = run_optimal_ew(this, pDes)
+            disp('not implemented yet')
         end
         function p_ip1 = run_A(this, p_i, i)
             if i == 1

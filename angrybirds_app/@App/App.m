@@ -74,6 +74,7 @@ classdef App < handle
                     traj(2,t) = - min(this.agents(1).collision_shape(:,2));
                     this.agents(1).move(traj(:,t)');
                     this.updateAgents();
+                    drawnow
                     break
                 end
                 this.updateAgents();
@@ -89,7 +90,7 @@ classdef App < handle
             this.deleteAgents();
             this.drawAgents();
             
-            traj = this.simulation.run_optimal(this.agents(2).position);
+            traj = this.simulation.run_optimal_ic(this.agents(2).position);
             for t = 1 : size(traj,2)
                 this.agents(1).move(traj(:,t)');
                 this.checkCollision()
@@ -132,10 +133,29 @@ classdef App < handle
                 this.point_move = state_ip1(1:2);
                 this.bird_speed = state_ip1(3:4);
                 this.agents(1).move(this.point_move');
-                this.agents(1).update(this.fig);
+                this.checkCollision();
+                if this.point_move(2) + min(this.agents(1).collision_shape(:,2)) < 0
+                    this.point_move(2) = - min(this.agents(1).collision_shape(:,2));
+                    this.agents(1).move(this.point_move');
+                    this.updateAgents();
+                    drawnow
+                    this.clicked = false;
+                    break
+                end
+                this.updateAgents();
                 drawnow
                 pause(0.03)
             end
+            
+            this.helper.message_wait_button(1, 'Optimal trajectory', 'Cool, eh? Now let''s play with states and co-state to find the optimal trajectory!', 'Let''s see', 0.1)
+            
+            for agent = this.agents
+                agent.setState(true);
+            end
+            this.deleteAgents();
+            this.drawAgents();
+            
+            traj = this.simulation.run_optimal_ew(this.agents(2).position);
         end
         function drawAgents(this)
             for agent = this.agents
