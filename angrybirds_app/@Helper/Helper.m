@@ -132,7 +132,7 @@ classdef Helper < handle
             hText.Units = 'normalized';
             hText.FontUnits = 'normalized';
             hText.FontSize = fontsize;
-            hText.Position = [0.48 0.15 0.5 0.5];
+            hText.Position = [0.48 0 0.5 0.5];
             
             this.show_figure(0)
         end

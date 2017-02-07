@@ -17,6 +17,7 @@ classdef Agent < handle
         face
         vertexColor
         faceColor
+        N
     end
     
     methods
@@ -40,13 +41,14 @@ classdef Agent < handle
             this.light = false;
             this.move(this.position)
             
-            for i = 1 : 51
-                this.vertex(3*(i-1)+1:3*(i-1)+3,:) = 2 * this.dimension * [0 0; cos((i-1)/50*2*pi) sin((i-1)/50*2*pi); cos(i/50*2*pi) sin(i/50*2*pi)];
+            this.N = 36;
+            for i = 1 : this.N+1
+                this.vertex(3*(i-1)+1:3*(i-1)+3,:) = 1.5 * this.dimension * [0 0; cos(pi/2+(i-1)/this.N*2*pi) sin(pi/2+(i-1)/this.N*2*pi); cos(pi/2+i/this.N*2*pi) sin(pi/2+i/this.N*2*pi)];
             end
-            for i = 1 : 50
+            for i = 1 : this.N
                 this.face(i,:) = [3*(i-1)+1, 3*(i-1)+2, 3*(i-1)+3];
             end            
-            this.vertexColor = repmat([1 1 0; 1 1 1; 1 1 1],51,1);
+            this.vertexColor = repmat([1 1 0; 0.96 0.96 0.96; 0.96 0.96 0.96],this.N+1,1);
             this.faceColor = 'interp';
         end
         function setState(this, state_value)
@@ -76,17 +78,18 @@ classdef Agent < handle
                     if this.light
                         if isempty(this.handle_light{i})
                             this.handle_light{i} = patch('Faces', this.face,...
-                                'Vertices', repmat(this.position, 51*3, 1) + repmat([0 0], 51*3, 1) + this.vertex,...
-                                'FaceVertexAlphaData', repmat([1;0;0],51,1), ...
+                                'Vertices', repmat(this.position, (this.N+1)*3, 1) + repmat([0 0], (this.N+1)*3, 1) + this.vertex,...
+                                'FaceVertexAlphaData', repmat([1;0;0],this.N+1,1), ...
                                 'FaceAlpha', 'interp', ...
                                 'FaceVertexCData', this.vertexColor,...
                                 'FaceColor', 'interp',...
-                                'EdgeColor', 'none');
+                                'EdgeColor', 'none',...
+                                'EdgeAlpha', 'interp');
                             uistack(this.handle_light{i},'bottom');
                         else
                             set(this.handle_light{i},...
                                 'Faces', this.face,...
-                                'Vertices', repmat(this.position, 51*3, 1) + repmat([0 0], 51*3, 1) + this.vertex);
+                                'Vertices', repmat(this.position, (this.N+1)*3, 1) + repmat([0 0], (this.N+1)*3, 1) + this.vertex);
                         end
                     end
                     set(this.handle{i}, 'XData', this.traslated_shape{i}(:,1), 'YData', this.traslated_shape{i}(:,2))
