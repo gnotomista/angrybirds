@@ -19,7 +19,7 @@ classdef App < handle
     methods
         function this = App()
             this.helper = Helper('Taylor','app_data/png/taylor.png');
-            this.simulation = Sim();            
+            this.simulation = Sim();
             this.point_caught = [NaN NaN];
             this.point_released = [NaN NaN];
             this.point_move = [NaN NaN];
@@ -124,6 +124,28 @@ classdef App < handle
             this.plot_environment()
             this.drawAgents();
             
+            htcc = text(2, 1, '3',...
+                'FontSize', 10,...
+                'HorizontalAlignment', 'center');
+            for cc = logspace(1, 3, 30)
+                set(htcc, 'FontSize', cc);
+                pause(0.03)
+                drawnow
+            end
+            set(htcc, 'String', '2', 'FontSize', 10);
+            for cc = logspace(1, 3, 30)
+                set(htcc, 'FontSize', cc);
+                pause(0.03)
+                drawnow
+            end
+            set(htcc, 'String', '1', 'FontSize', 10);
+            for cc = logspace(1, 3, 30)
+                set(htcc, 'FontSize', cc);
+                pause(0.03)
+                drawnow
+            end
+            delete(htcc)
+            
             while true
                 if ~this.clicked
                     state_ip1 = this.simulation.run_A([this.point_move; this.bird_speed; 9.81], 1);
@@ -151,11 +173,38 @@ classdef App < handle
             
             for agent = this.agents
                 agent.setState(true);
+                agent.light = false;
             end
             this.deleteAgents();
             this.drawAgents();
             
-            traj = this.simulation.run_optimal_ew(this.agents(2).position);
+            [traj, tau_idx] = this.simulation.run_optimal_ew(this.agents(2).position);
+            for t = 1 : 25 : size(traj,2)
+                if t > tau_idx
+                    this.agents(1).light = true;
+                end
+                this.agents(1).move(traj(:,t)');
+                this.checkCollision()
+                if traj(2,t) + min(this.agents(1).collision_shape(:,2)) < 0
+                    traj(2,t) = traj(2,t) - min(this.agents(1).collision_shape(:,2));
+                    this.agents(1).move(traj(:,t)');
+                    this.updateAgents();
+                    drawnow
+                    break
+                end
+                this.updateAgents();
+                drawnow
+                pause(0.03)
+            end
+            traj(2,end) = - min(this.agents(1).collision_shape(:,2));
+            this.agents(1).move(traj(:,end)');
+            this.checkCollision()
+            this.updateAgents();
+            drawnow
+            pause(0.03)
+            
+            this.helper.info(0.5, 'Touchdown', 'TOUCHDOWN!', 0.2)
+            this.delete_play_figure(0)
         end
         function drawAgents(this)
             for agent = this.agents
@@ -266,6 +315,7 @@ classdef App < handle
         end
         function onMouseClicked(this, object, eventdata)
             this.clicked = true;
+            this.agents(1).light = true;
         end
     end
     

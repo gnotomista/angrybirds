@@ -4,13 +4,19 @@ classdef Agent < handle
         type
         position
         state
+        light
         shape
         traslated_shape
         collision_shape
         traslated_collision_shape
         dimension
         handle
+        handle_light
         shape_colors
+        vertex
+        face
+        vertexColor
+        faceColor
     end
     
     methods
@@ -31,7 +37,17 @@ classdef Agent < handle
             this.dress_me_as(this.type)
             
             this.state = true;
+            this.light = false;
             this.move(this.position)
+            
+            for i = 1 : 51
+                this.vertex(3*(i-1)+1:3*(i-1)+3,:) = 2 * this.dimension * [0 0; cos((i-1)/50*2*pi) sin((i-1)/50*2*pi); cos(i/50*2*pi) sin(i/50*2*pi)];
+            end
+            for i = 1 : 50
+                this.face(i,:) = [3*(i-1)+1, 3*(i-1)+2, 3*(i-1)+3];
+            end            
+            this.vertexColor = repmat([1 1 0; 1 1 1; 1 1 1],51,1);
+            this.faceColor = 'interp';
         end
         function setState(this, state_value)
             this.state = state_value;
@@ -46,8 +62,10 @@ classdef Agent < handle
         function draw(this, fig_handle)
             figure(fig_handle)
             this.handle = cell(1,length(this.shape));
+            this.handle_light = cell(1,length(this.shape));
             for i = 1 : length(this.shape)
                 this.handle{i} = fill(this.traslated_shape{i}(:,1), this.traslated_shape{i}(:,2), this.shape_colors{i});
+                this.handle_light{i} = [];
                 set(this.handle{i}, 'HitTest', 'off')
             end
         end
@@ -55,11 +73,28 @@ classdef Agent < handle
             if this.state
                 figure(fig_handle)
                 for i = 1 : length(this.shape)
+                    if this.light
+                        if isempty(this.handle_light{i})
+                            this.handle_light{i} = patch('Faces', this.face,...
+                                'Vertices', repmat(this.position, 51*3, 1) + repmat([0 0], 51*3, 1) + this.vertex,...
+                                'FaceVertexAlphaData', repmat([1;0;0],51,1), ...
+                                'FaceAlpha', 'interp', ...
+                                'FaceVertexCData', this.vertexColor,...
+                                'FaceColor', 'interp',...
+                                'EdgeColor', 'none');
+                            uistack(this.handle_light{i},'bottom');
+                        else
+                            set(this.handle_light{i},...
+                                'Faces', this.face,...
+                                'Vertices', repmat(this.position, 51*3, 1) + repmat([0 0], 51*3, 1) + this.vertex);
+                        end
+                    end
                     set(this.handle{i}, 'XData', this.traslated_shape{i}(:,1), 'YData', this.traslated_shape{i}(:,2))
                 end
             else
                 for i = 1 : length(this.shape)
                     delete(this.handle{i})
+                    delete(this.handle_light{i})
                 end
             end
         end
@@ -69,6 +104,7 @@ classdef Agent < handle
         function delete_handle(this)
             for i = 1 : length(this.shape)
                 delete(this.handle{i})
+                delete(this.handle_light{i})
             end
         end
         function dress_me_as(this, dress)

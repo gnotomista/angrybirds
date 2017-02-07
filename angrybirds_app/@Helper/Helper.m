@@ -19,31 +19,45 @@ classdef Helper < handle
             
             ha1 = axes;
             ha1.Units = 'normalized';
-            ha1.Position = [0.05 0.55 0.4 0.4];
+            ha1.Position = [0.05 0.7 0.25 0.25];
             image(imread('app_data/png/egerstedt_wardi.png'))
             axis off
             axis image
             
             ha2 = axes;
             ha2.Units = 'normalized';
-            ha2.Position = [0.05 0.05 0.4 0.4];
+            ha2.Position = [0.05 0.4 0.25 0.25];
+            image(imread('app_data/png/armijo.png'))
+            axis off
+            axis image
+            
+            ha3 = axes;
+            ha3.Units = 'normalized';
+            ha3.Position = [0.05 0.1 0.25 0.25];
             image(imread('app_data/png/linux_mac.png'))
             axis off
             axis image
             
-            hText = uicontrol('Style','text');
-            hText.String = 'Added optimal switching time problem';
-            hText.Units = 'normalized';
-            hText.FontUnits = 'normalized';
-            hText.FontSize = 0.25;
-            hText.Position = [0.55 0.6 0.35 0.3];
+            hText1 = uicontrol('Style','text');
+            hText1.String = 'Added optimal switching time problem';
+            hText1.Units = 'normalized';
+            hText1.FontUnits = 'normalized';
+            hText1.FontSize = 0.25;
+            hText1.Position = [0.3 0.65 0.6 0.2];
             
-            hText = uicontrol('Style','text');
-            hText.String = 'Fixed issues with Macintosh';
-            hText.Units = 'normalized';
-            hText.FontUnits = 'normalized';
-            hText.FontSize = 0.25;
-            hText.Position = [0.55 0.1 0.35 0.3];
+            hText2 = uicontrol('Style','text');
+            hText2.String = 'Powered by Armijo';
+            hText2.Units = 'normalized';
+            hText2.FontUnits = 'normalized';
+            hText2.FontSize = 0.25;
+            hText2.Position = [0.3 0.35 0.6 0.2];
+            
+            hText3 = uicontrol('Style','text');
+            hText3.String = 'Fixed issues with Macintosh';
+            hText3.Units = 'normalized';
+            hText3.FontUnits = 'normalized';
+            hText3.FontSize = 0.25;
+            hText3.Position = [0.3 0.05 0.6 0.2];
             
             hButton = uicontrol('Style', 'pushbutton');
             hButton.Units = 'normalized';
@@ -88,7 +102,6 @@ classdef Helper < handle
             hButton.Callback = @this.wait_button_callback;
             hButton.String = 'Start';
             
-            movegui(this.fig,'center')
             this.show_figure_until_button_press()
         end
         function message_wait_button(this, pause_before, name, message, button_text, fontsize)
@@ -127,11 +140,10 @@ classdef Helper < handle
             this.fig = figure;
             this.fig.Visible = 'off';
             this.fig.Units = 'normalized';
-            this.fig.Position = [0.1 0.1 0.8 0.8];
+            this.fig.Position = [0.2 0.2 0.6 0.6];
             this.fig.MenuBar = 'none';
             this.fig.NumberTitle = 'off';
             this.fig.Name = name;
-            movegui(this.fig, 'center')
         end
         function create_figure_with_axes(this, name)
             this.fig = figure;
@@ -141,7 +153,6 @@ classdef Helper < handle
             this.fig.MenuBar = 'none';
             this.fig.NumberTitle = 'off';
             this.fig.Name = name;
-            movegui(this.fig, 'center')
             
             ha = axes;
             ha.Units = 'normalized';
@@ -152,6 +163,7 @@ classdef Helper < handle
             axis image
         end
         function show_figure_until_button_press(this)
+            movegui(this.fig, 'center')
             this.fig.Visible = 'on';
             
             this.wait = true;
@@ -162,6 +174,7 @@ classdef Helper < handle
             this.fig.Visible = 'off';
         end
         function show_figure(this, duration)
+            movegui(this.fig, 'center')
             this.fig.Visible = 'on';
             pause(duration)
         end
