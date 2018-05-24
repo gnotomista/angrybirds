@@ -62,7 +62,7 @@ classdef App < handle
                     end
                     break
                 end
-                drawnow
+                drawnow limitrate
                 pause(0.03)
             end
             
@@ -74,11 +74,11 @@ classdef App < handle
                     traj(2,t) = - min(this.agents(1).collision_shape(:,2));
                     this.agents(1).move(traj(:,t)');
                     this.updateAgents();
-                    drawnow
+                    drawnow limitrate
                     break
                 end
                 this.updateAgents();
-                drawnow
+                drawnow limitrate
                 pause(0.03)
             end
             
@@ -98,11 +98,11 @@ classdef App < handle
                     traj(2,t) = traj(2,t) - min(this.agents(1).collision_shape(:,2));
                     this.agents(1).move(traj(:,t)');
                     this.updateAgents();
-                    drawnow
+                    drawnow limitrate
                     break
                 end
                 this.updateAgents();
-                drawnow
+                drawnow limitrate
                 pause(0.03)
             end
             
@@ -130,19 +130,19 @@ classdef App < handle
             for cc = logspace(1, 3, 30)
                 set(htcc, 'FontSize', cc);
                 pause(0.03)
-                drawnow
+                drawnow limitrate
             end
             set(htcc, 'String', '2', 'FontSize', 10);
             for cc = logspace(1, 3, 30)
                 set(htcc, 'FontSize', cc);
                 pause(0.03)
-                drawnow
+                drawnow limitrate
             end
             set(htcc, 'String', '1', 'FontSize', 10);
             for cc = logspace(1, 3, 30)
                 set(htcc, 'FontSize', cc);
                 pause(0.03)
-                drawnow
+                drawnow limitrate
             end
             delete(htcc)
             
@@ -160,12 +160,12 @@ classdef App < handle
                     this.point_move(2) = - min(this.agents(1).collision_shape(:,2));
                     this.agents(1).move(this.point_move');
                     this.updateAgents();
-                    drawnow
+                    drawnow limitrate
                     this.clicked = false;
                     break
                 end
                 this.updateAgents();
-                drawnow
+                drawnow limitrate
                 pause(0.03)
             end
             
@@ -189,18 +189,18 @@ classdef App < handle
                     traj(2,t) = traj(2,t) - min(this.agents(1).collision_shape(:,2));
                     this.agents(1).move(traj(:,t)');
                     this.updateAgents();
-                    drawnow
+                    drawnow limitrate
                     break
                 end
                 this.updateAgents();
-                drawnow
+                drawnow limitrate
                 pause(0.03)
             end
             traj(2,end) = - min(this.agents(1).collision_shape(:,2));
             this.agents(1).move(traj(:,end)');
             this.checkCollision()
             this.updateAgents();
-            drawnow
+            drawnow limitrate
             pause(0.03)
             
             this.helper.info(0.5, 'Touchdown', 'TOUCHDOWN!', 0.2)
